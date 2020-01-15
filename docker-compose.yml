@@ -1,0 +1,16 @@
+---
+version: '2'
+
+  kenployee_build:
+    image: kenployee_build
+    build:
+      dockerfile: Dockerfile
+      context: .
+    volumes:
+      - ./kenployee:z
+
+  kenployee_run:
+    image: kenployee_run
+    build:
+      dockerfile: Dockerfile_run
+      context: ./kenployee
