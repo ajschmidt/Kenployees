@@ -1,6 +1,7 @@
 package dorg.ajs.data.jpa.web;
 
 import java.util.List;
+import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import dorg.ajs.data.jpa.exception.RecordNotFoundException;
 import dorg.ajs.data.jpa.domain.Employee;
@@ -25,23 +27,26 @@ public class EmployeeController {
 	@Autowired
 	EmployeeService service;
 
-	@GetMapping
-	public ResponseEntity<List<Employee>> getAllEmployees() {
-		List<Employee> list = service.getActiveEmployees();
-		return new ResponseEntity<List<Employee>>(list, new HttpHeaders(), HttpStatus.OK);
+	@GetMapping(path = "/", produces = "application/json")
+	public List<Employee> getAllEmployees() {
+		return service.getActiveEmployees();
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Employee> getEmployeeById(@PathVariable("id") Long id) throws RecordNotFoundException {
-		Employee entity = service.getActiveEmployeeById(id);
-
-		return new ResponseEntity<Employee>(entity, new HttpHeaders(), HttpStatus.OK);
+	public Employee getEmployeeById(@PathVariable("id") Long id) throws RecordNotFoundException {
+		return service.getActiveEmployeeById(id);
 	}
 
-	@PostMapping
-	public ResponseEntity<Employee> createOrUpdateEmployee(@RequestBody Employee employee) throws RecordNotFoundException {
-		Employee updated = service.createEmployee(employee);
-		return new ResponseEntity<Employee>(updated, new HttpHeaders(), HttpStatus.OK);
+	@PostMapping(path = "/", consumes = "application/json", produces = "application/json")
+	public ResponseEntity<Object> createOrUpdateEmployee(
+			@RequestBody Employee employee) throws RecordNotFoundException {
+		Employee created = service.createEmployee(employee);
+		// Create resource location
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(created.getId())
+				.toUri();
+
+		// Set 'location' header in response
+		return ResponseEntity.created(location).build();
 	}
 
 	@PutMapping

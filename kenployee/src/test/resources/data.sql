@@ -1,4 +1,5 @@
 TRUNCATE TABLE EMPLOYEES;
+COMMIT;
 INSERT INTO
 	EMPLOYEES (first_name, middle_i, last_name, date_of_birth, date_of_employment, active_status)
 VALUES
